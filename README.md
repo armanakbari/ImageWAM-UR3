@@ -24,14 +24,14 @@ We recommend starting with **FLUX.2 ImageWAM**. It provides 4B and 9B variants b
 - **[YYYY-MM-DD]** Brief update.
 -->
 
-- **[2026-07-30]** We've uploaded new model checkpoint pretrained from [InternData-A1](https://huggingface.co/datasets/InternRobotics/InternData-A1), a synthetic large-scale robot dataset! Now you could fine-tune your own model from this checkpoint. We've tested the pretrain-finetuning results on RoboTwin Clean2Random setting, reaching 59.0% SR, which is +40.9% vs. ImageWAM w/o pretrain and +11.5% vs. pi-0.5. We will later release this checkpoint.
+- **[2026-07-30]** We've uploaded new model checkpoint pretrained from [InternData-A1](https://huggingface.co/datasets/InternRobotics/InternData-A1), a synthetic large-scale robot dataset! Now you could fine-tune your own model from this checkpoint. We've tested the pretrain-finetuning results on RoboTwin Clean2Random setting, reaching 59.0% SR, which is +40.9% vs. ImageWAM w/o pretrain and +11.5% vs. π-0.5. Check this C2R checkpoint at [yuyangalin/ImageWAM-FLUX.2-4B-RoboTwin-C2R-FT](https://huggingface.co/yuyangalin/ImageWAM-FLUX.2-4B-RoboTwin-C2R-FT)
 
 ## TODO
 
 <!--
 - [ ] Planned release or project milestone.
 -->
-- [ ] Release RoboTwin C2R checkpoint fine-tuned from pretrained ckpt.
+- [x] Release RoboTwin C2R checkpoint fine-tuned from pretrained ckpt.
 - [ ] Release a sample code on training and evaluating on real-world robots.
 
 All commands below are assumed to run from the repository root.
