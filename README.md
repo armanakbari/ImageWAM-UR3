@@ -1,19 +1,46 @@
-# ImageWAM
-
-Official codebase for **ImageWAM: Do World Action Models Really Need Video Generation, or Just Image Editing?**
-
-[English](./README.md) | [中文](./README_zh.md) 
-
-[Huggingface Models](https://huggingface.co/collections/yuyangalin/imagewam) | [Paper](https://arxiv.org/abs/2606.19531) | [Project Page](https://zhangwenyao1.github.io/ImageWAM/)
+<div align="center">
+  <h1>ImageWAM</h1>
+  <h3>Do World Action Models Really Need Video Generation,<br>or Just Image Editing?</h3>
+  <p><b>Official PyTorch implementation</b></p>
+  <p>
+    <a href="https://zhangwenyao1.github.io/ImageWAM/"><img src="https://img.shields.io/badge/Project-Page-blue.svg" alt="Project Page"></a>
+    <a href="https://arxiv.org/abs/2606.19531"><img src="https://img.shields.io/badge/arXiv-2606.19531-b31b1b.svg?logo=arxiv" alt="arXiv"></a>
+    <a href="https://huggingface.co/collections/yuyangalin/imagewam"><img src="https://img.shields.io/badge/Hugging_Face-Models-yellow.svg?logo=huggingface" alt="Hugging Face Models"></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
+  </p>
+  <p>
+    <a href="https://paperswithcode.co/benchmark/robotwin-2-0-easy-50-tasks?task=robotics&amp;eval=15812"><img src="https://paperswithcode.co/api/v1/papers/2606.19531/leaderboard-badge.svg?eval=15812&amp;live=1" alt="Papers with Code: SOTA on RoboTwin 2.0 Easy (50 Tasks)"></a>
+    <a href="https://paperswithcode.co/benchmark/robotwin-2-0-hard-50-tasks?task=robotics&amp;eval=15813"><img src="https://paperswithcode.co/api/v1/papers/2606.19531/leaderboard-badge.svg?eval=15813&amp;live=1" alt="Papers with Code: SOTA on RoboTwin 2.0 Hard (50 Tasks)"></a>
+  </p>
+  <p><a href="./README.md">English</a> | <a href="./README_zh.md">中文</a></p>
+</div>
 
 ImageWAM is a family of world action models built on image-editing foundation models. This repository contains the training and evaluation code used in the paper experiments on LIBERO, LIBERO-plus, and RoboTwin.
 
 We recommend starting with **FLUX.2 ImageWAM**. It provides 4B and 9B variants based on FLUX.2 [klein] 4B/9B base models, and gives the strongest performance in the series. This repository also provides training and evaluation entrypoints for **OmniGen2 ImageWAM** and **Ovis-U1 ImageWAM**. These variants are built on OmniGen2 and Ovis-U1 and also perform well. The Ovis-U1 variant is the smallest model in the series, with only a 1.1B DiT for image editing, while remaining competitive with larger variants in many settings.
 
+## News
+
+<!-- Add new entries at the top:
+- **[YYYY-MM-DD]** Brief update.
+-->
+
+- **[2026-07-30]** We've uploaded new model checkpoint pretrained from [InternData-A1](https://huggingface.co/datasets/InternRobotics/InternData-A1), a synthetic large-scale robot dataset! Now you could fine-tune your own model from this checkpoint. We've tested the pretrain-finetuning results on RoboTwin Clean2Random setting, reaching 59.0% SR, which is +40.9% vs. ImageWAM w/o pretrain and +11.5% vs. pi-0.5. We will later release this checkpoint.
+
+## TODO
+
+<!--
+- [ ] Planned release or project milestone.
+-->
+- [ ] Release RoboTwin C2R checkpoint fine-tuned from pretrained ckpt.
+- [ ] Release a sample code on training and evaluating on real-world robots.
+
 All commands below are assumed to run from the repository root.
 
 ## Table Of Contents
 
+- [News](#news)
+- [TODO](#todo)
 - [Repository Structure](#repository-structure)
 - [Basic Installation](#basic-installation)
 - [Model Preparation](#model-preparation)
@@ -280,6 +307,22 @@ PRECOMPUTE_QWEN3_CACHE=true \
 bash scripts/flux2/run_train_flux2_klein_imagewam.sh
 ```
 
+RoboTwin fine-tuning from the released InternData-A1 16D pretrain weight:
+
+```bash
+export PRETRAIN_CHECKPOINT=/path/to/imagewam-interndata-a1-ee/checkpoint.pt
+export ROBOTWIN_ROOT="$(pwd)/data/robotwin2.0/robotwin2.0"
+
+GPU_PER_NODE=8 \
+USE_CLEAN_ROBOTWIN=true \
+PRECOMPUTE_QWEN3_CACHE=true \
+bash scripts/flux2/run_finetune_flux2_klein_robotwin_ee16.sh
+```
+
+Here, `ee16` names the 16D pretrain checkpoint layout. RoboTwin's original
+14D joint/action representation is padded with two masked dimensions; it is
+not converted into end-effector poses.
+
 Common FLUX.2 overrides:
 
 ```bash
@@ -386,6 +429,15 @@ RoboTwin:
 NUM_GPUS=8 \
 FLUX2_VARIANT=4b \
 bash scripts/flux2/run_eval_flux2_robotwin.sh
+```
+
+RoboTwin checkpoints fine-tuned from the InternData-A1 16D pretrain weight:
+
+```bash
+export CKPT_PATH=/path/to/robotwin-ee16/checkpoint.pt
+export DATASET_STATS_PATH=/path/to/robotwin-ee16/dataset_stats.json
+
+NUM_GPUS=8 bash scripts/flux2/run_eval_flux2_robotwin_ee16.sh
 ```
 
 RoboTwin evaluation enables `EVALUATION.skip_get_obs_within_replan=true` by default to speed up evaluation. If you need to save fully rendered videos, set `SKIP_GET_OBS_WITHIN_REPLAN=false`.

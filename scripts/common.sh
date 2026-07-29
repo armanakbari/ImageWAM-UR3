@@ -73,6 +73,10 @@ imagewam_ckpt_from_exp() {
 imagewam_prepare_eval_ckpt() {
   if [ -n "${LOCAL_CKPT_ROOT:-}" ]; then
     imagewam_require_env CKPT_PATH
+    if [ "${DRY_RUN:-false}" = "true" ]; then
+      echo "[dry-run] skipping local checkpoint copy"
+      return 0
+    fi
     local task_name="${TASK:-eval}"
     local run_name="$(basename "$(dirname "$(dirname "$(dirname "${CKPT_PATH}")")")")"
     local local_path="${LOCAL_CKPT_ROOT}/runs/${task_name}/${run_name}/checkpoints/weights/$(basename "${CKPT_PATH}")"

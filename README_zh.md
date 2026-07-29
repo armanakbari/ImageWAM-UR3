@@ -1,19 +1,42 @@
-# ImageWAM
-
-**ImageWAM: Do World Action Models Really Need Video Generation, or Just Image Editing?** 的官方代码仓库。
-
-[English](./README.md) | [中文](./README_zh.md)
-
-项目主页、论文链接、模型权重和数据集链接会在正式公开前补充。
+<div align="center">
+  <h1>ImageWAM</h1>
+  <h3>Do World Action Models Really Need Video Generation,<br>or Just Image Editing?</h3>
+  <p><b>官方 PyTorch 实现</b></p>
+  <p>
+    <a href="https://zhangwenyao1.github.io/ImageWAM/"><img src="https://img.shields.io/badge/Project-Page-blue.svg" alt="项目主页"></a>
+    <a href="https://arxiv.org/abs/2606.19531"><img src="https://img.shields.io/badge/arXiv-2606.19531-b31b1b.svg?logo=arxiv" alt="arXiv"></a>
+    <a href="https://huggingface.co/collections/yuyangalin/imagewam"><img src="https://img.shields.io/badge/Hugging_Face-Models-yellow.svg?logo=huggingface" alt="Hugging Face 模型"></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
+  </p>
+  <p>
+    <a href="https://paperswithcode.co/benchmark/robotwin-2-0-easy-50-tasks?task=robotics&amp;eval=15812"><img src="https://paperswithcode.co/api/v1/papers/2606.19531/leaderboard-badge.svg?eval=15812&amp;live=1" alt="Papers with Code: SOTA on RoboTwin 2.0 Easy (50 Tasks)"></a>
+    <a href="https://paperswithcode.co/benchmark/robotwin-2-0-hard-50-tasks?task=robotics&amp;eval=15813"><img src="https://paperswithcode.co/api/v1/papers/2606.19531/leaderboard-badge.svg?eval=15813&amp;live=1" alt="Papers with Code: SOTA on RoboTwin 2.0 Hard (50 Tasks)"></a>
+  </p>
+  <p><a href="./README.md">English</a> | <a href="./README_zh.md">中文</a></p>
+</div>
 
 ImageWAM 是一组基于图像编辑模型基座的 world action model。本仓库包含论文实验中在 LIBERO、LIBERO-plus 和 RoboTwin 上使用的训练与评测代码。
 
 建议从 **FLUX.2 ImageWAM** 开始使用；这一版本提供了4B和9B两个变体，基于FLUX.2 [klein] 4B/9B base，提供系列模型中最强大的性能。仓库同时提供 **OmniGen2 ImageWAM** 和 **Ovis-U1 ImageWAM** 的训练与评测入口，这两个模型基于 OmniGen2 与 Ovis-U1 构建，同样提供了较为良好的性能，其中 Ovis-U1 变体是系列中最小的模型（用于图像编辑的DiT仅1.1B），但在诸多方面与更大的变体相媲美。
 
+## News
+
+<!-- 新动态放在最上方：
+- **[YYYY-MM-DD]** 简要更新。
+-->
+
+## TODO
+
+<!--
+- [ ] 计划发布的内容或项目里程碑。
+-->
+
 下文所有命令默认都在仓库根目录执行。
 
 ## 目录
 
+- [News](#news)
+- [TODO](#todo)
 - [仓库结构](#仓库结构)
 - [基础安装](#基础安装)
 - [模型准备](#模型准备)
@@ -279,6 +302,21 @@ PRECOMPUTE_QWEN3_CACHE=true \
 bash scripts/flux2/run_train_flux2_klein_imagewam.sh
 ```
 
+从发布的 InternData-A1 16D 预训练权重微调 RoboTwin：
+
+```bash
+export PRETRAIN_CHECKPOINT=/path/to/imagewam-interndata-a1-ee/checkpoint.pt
+export ROBOTWIN_ROOT="$(pwd)/data/robotwin2.0/robotwin2.0"
+
+GPU_PER_NODE=8 \
+USE_CLEAN_ROBOTWIN=true \
+PRECOMPUTE_QWEN3_CACHE=true \
+bash scripts/flux2/run_finetune_flux2_klein_robotwin_ee16.sh
+```
+
+这里的 `ee16` 表示预训练 checkpoint 使用的 16D 布局。RoboTwin 原始
+14D 关节/动作向量只会插入两个被 mask 的维度，并不会转换为末端位姿。
+
 常用 FLUX.2 覆盖项：
 
 ```bash
@@ -385,6 +423,15 @@ RoboTwin：
 NUM_GPUS=8 \
 FLUX2_VARIANT=4b \
 bash scripts/flux2/run_eval_flux2_robotwin.sh
+```
+
+评测从 InternData-A1 16D 预训练权重微调得到的 RoboTwin checkpoint：
+
+```bash
+export CKPT_PATH=/path/to/robotwin-ee16/checkpoint.pt
+export DATASET_STATS_PATH=/path/to/robotwin-ee16/dataset_stats.json
+
+NUM_GPUS=8 bash scripts/flux2/run_eval_flux2_robotwin_ee16.sh
 ```
 
 RoboTwin 评测默认开启 `EVALUATION.skip_get_obs_within_replan=true` 以加速评测。如果需要保存完整渲染视频，可以设置 `SKIP_GET_OBS_WITHIN_REPLAN=false`。

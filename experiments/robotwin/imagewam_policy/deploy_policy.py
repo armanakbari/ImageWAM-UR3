@@ -217,6 +217,7 @@ class WorldActionRobotWinPolicy:
         timing_enabled: bool,
         num_video_frames: int,
         robotwin_camera_layout: str,
+        apply_action_transform_backward: bool = False,
     ) -> None:
         model_cfg_copy = OmegaConf.create(OmegaConf.to_container(model_cfg, resolve=True))
         model_cfg_copy.load_text_encoder = True
@@ -242,6 +243,7 @@ class WorldActionRobotWinPolicy:
         self.timing_enabled = bool(timing_enabled)
         self._num_video_frames = int(num_video_frames)
         self.robotwin_camera_layout = str(robotwin_camera_layout)
+        self.apply_action_transform_backward = bool(apply_action_transform_backward)
 
         self.pending_actions: deque[np.ndarray] = deque()
         self.episode_count = 0
@@ -260,12 +262,14 @@ class WorldActionRobotWinPolicy:
         }
 
         logger.info(
-            "Initialized WorldActionRobotWinPolicy | ckpt=%s | stats=%s | horizon=%d | replan=%d | robotwin_camera_layout=%s",
+            "Initialized WorldActionRobotWinPolicy | ckpt=%s | stats=%s | horizon=%d | replan=%d | "
+            "robotwin_camera_layout=%s | apply_action_transform_backward=%s",
             checkpoint_path,
             dataset_stats_path,
             self.action_horizon,
             self.replan_steps,
             self.robotwin_camera_layout,
+            self.apply_action_transform_backward,
         )
 
     def _normalize_state(self, state: np.ndarray) -> torch.Tensor:
@@ -292,7 +296,14 @@ class WorldActionRobotWinPolicy:
         action_key = action_meta[0]["key"]
         normalizer = self.processor.normalizer.normalizers["action"][action_key]
         denorm = normalizer.backward(action.to(dtype=torch.float32, device="cpu"))
-        return denorm.numpy()
+        if not self.apply_action_transform_backward:
+            return denorm.numpy()
+
+        batch = {"action": {action_key: denorm}}
+        if self.processor.action_state_transforms is not None:
+            for transform in reversed(self.processor.action_state_transforms):
+                batch = transform.backward(batch)
+        return batch["action"][action_key].numpy()
 
     def _build_robotwin_image_tensor(self, observation: Dict[str, Any]) -> torch.Tensor:
         obs_data = observation["observation"]
@@ -586,6 +597,12 @@ def get_model(usr_args: Dict[str, Any]):
             ),
         )
     )
+    apply_action_transform_backward = _parse_bool(
+        usr_args.get(
+            "apply_action_transform_backward",
+            cfg.EVALUATION.get("apply_action_transform_backward", False),
+        )
+    )
 
     policy = WorldActionRobotWinPolicy(
         model_cfg=cfg.model,
@@ -606,6 +623,7 @@ def get_model(usr_args: Dict[str, Any]):
         timing_enabled=timing_enabled,
         num_video_frames=(int(cfg.data.train.num_frames) - 1) // int(cfg.data.train.action_video_freq_ratio) + 1,
         robotwin_camera_layout=robotwin_camera_layout,
+        apply_action_transform_backward=apply_action_transform_backward,
     )
     return policy
 

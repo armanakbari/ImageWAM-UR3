@@ -100,6 +100,7 @@ if [ "${PRECOMPUTE_QWEN3_CACHE}" = "true" ]; then
     qwen_cache_batch_size="${QWEN_CACHE_BATCH_SIZE:-16}" \
     qwen_cache_save_workers="${QWEN_CACHE_SAVE_WORKERS:-4}" \
     qwen_cache_overwrite="${QWEN_CACHE_OVERWRITE:-false}" \
+    model.flux2_src_path="${FLUX2_SRC}" \
     model.variant="klein-base-${FLUX2_VARIANT}" \
     model.qwen3_model_spec="${FLUX2_QWEN3_MODEL_SPEC}" \
     flux2_qwen3_model_spec="${FLUX2_QWEN3_MODEL_SPEC}" \

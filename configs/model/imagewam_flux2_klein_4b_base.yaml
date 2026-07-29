@@ -1,6 +1,6 @@
 _target_: imagewam.runtime.create_imagewam_flux2_klein
 
-flux2_src_path: /apdcephfs_nj7/share_305204761/alixzhang/flux2
+flux2_src_path: ???
 flux2_model_path: ???
 ae_model_path: ???
 variant: klein-base-4b

@@ -1,0 +1,42 @@
+defaults:
+  - robotwin_omnigen2
+  - _self_
+
+# `ee16` means "use the 16D pretrain action/state space". RoboTwin's 14D
+# representation is unchanged semantically and only padded with two masked dims.
+
+train:
+  pretrained_norm_stats: null
+  shape_meta:
+    action:
+      - key: default
+        raw_shape: 14
+        shape: 16
+    state:
+      - key: default
+        raw_shape: 14
+        shape: 16
+  processor:
+    action_output_dim: 16
+    proprio_output_dim: 16
+    action_state_transforms:
+      - _target_: imagewam.datasets.lerobot.transforms.canonical.RobotWin14ToCanonicalEE16
+        key: default
+
+val:
+  pretrained_norm_stats: null
+  shape_meta:
+    action:
+      - key: default
+        raw_shape: 14
+        shape: 16
+    state:
+      - key: default
+        raw_shape: 14
+        shape: 16
+  processor:
+    action_output_dim: 16
+    proprio_output_dim: 16
+    action_state_transforms:
+      - _target_: imagewam.datasets.lerobot.transforms.canonical.RobotWin14ToCanonicalEE16
+        key: default
