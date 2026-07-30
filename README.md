@@ -1,7 +1,6 @@
 <div align="center">
   <h1>ImageWAM</h1>
   <h3>Do World Action Models Really Need Video Generation,<br>or Just Image Editing?</h3>
-  <p><b>Official PyTorch implementation</b></p>
   <p>
     Yuyang Zhang<sup>1,2,3*</sup>,
     Wenyao Zhang<sup>1,2,3*†</sup>,
@@ -22,6 +21,7 @@
     <sup>5</sup>Zhongguancun Academy
   </p>
   <p><sup>*</sup>Equal contribution &nbsp;·&nbsp; <sup>†</sup>Project lead &nbsp;·&nbsp; <sup>✉</sup>Corresponding author</p>
+  <p><b>Official PyTorch implementation</b></p>
   <p>
     <a href="https://zhangwenyao1.github.io/ImageWAM/"><img src="https://img.shields.io/badge/Project-Page-blue.svg" alt="Project Page"></a>
     <a href="https://arxiv.org/abs/2606.19531"><img src="https://img.shields.io/badge/arXiv-2606.19531-b31b1b.svg?logo=arxiv" alt="arXiv"></a>
