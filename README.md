@@ -3,6 +3,26 @@
   <h3>Do World Action Models Really Need Video Generation,<br>or Just Image Editing?</h3>
   <p><b>Official PyTorch implementation</b></p>
   <p>
+    Yuyang Zhang<sup>1,2,3*</sup>,
+    Wenyao Zhang<sup>1,2,3*†</sup>,
+    Zekun Qi<sup>4</sup>,
+    He Zhang<sup>3</sup>,
+    Haitao Lin<sup>3</sup>,
+    Jingbo Zhang<sup>3</sup>,
+    Yao Mu<sup>1</sup>,
+    Xiaokang Yang<sup>1</sup>,
+    Wenjun Zeng<sup>2</sup>,
+    Xin Jin<sup>2,5✉</sup>
+  </p>
+  <p>
+    <sup>1</sup>Shanghai Jiao Tong University &nbsp;&nbsp;
+    <sup>2</sup>Eastern Institute of Technology &nbsp;&nbsp;
+    <sup>3</sup>Tencent Robotics X<br>
+    <sup>4</sup>Tsinghua University &nbsp;&nbsp;
+    <sup>5</sup>Zhongguancun Academy
+  </p>
+  <p><sup>*</sup>Equal contribution &nbsp;·&nbsp; <sup>†</sup>Project lead &nbsp;·&nbsp; <sup>✉</sup>Corresponding author</p>
+  <p>
     <a href="https://zhangwenyao1.github.io/ImageWAM/"><img src="https://img.shields.io/badge/Project-Page-blue.svg" alt="Project Page"></a>
     <a href="https://arxiv.org/abs/2606.19531"><img src="https://img.shields.io/badge/arXiv-2606.19531-b31b1b.svg?logo=arxiv" alt="arXiv"></a>
     <a href="https://huggingface.co/collections/yuyangalin/imagewam"><img src="https://img.shields.io/badge/Hugging_Face-Models-yellow.svg?logo=huggingface" alt="Hugging Face Models"></a>
