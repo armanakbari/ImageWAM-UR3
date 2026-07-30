@@ -53,6 +53,7 @@ We recommend starting with **FLUX.2 ImageWAM**. It provides 4B and 9B variants b
 -->
 - [x] Release RoboTwin C2R checkpoint fine-tuned from pretrained ckpt.
 - [ ] Release a sample code on training and evaluating on real-world robots.
+- [ ] Release results & checkpoints on more benchmarks.
 
 All commands below are assumed to run from the repository root.
 
