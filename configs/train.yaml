@@ -24,6 +24,7 @@ max_steps: null
 log_every: 10
 save_every: 100
 keep_latest_state_only: false  # true keeps all weight checkpoints but only the latest resumable training state.
+save_optimizer_state: true   # false = weights-only checkpoints (no ~55GB ZeRO state per save)
 eval_every: 50
 eval_num_inference_steps: 10
 eval_num_samples: 1

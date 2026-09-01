@@ -48,6 +48,11 @@ class Wan22Trainer:
         self.log_every = int(cfg.log_every)
         self.save_every = int(cfg.save_every)
         self.keep_latest_state_only = bool(getattr(cfg, "keep_latest_state_only", False))
+        # Skip the DeepSpeed/ZeRO optimizer state entirely. Each state dir is ~55 GB
+        # against a 9 GB weights file; on an NFS-backed run dir those writes have
+        # stalled ranks in uninterruptible I/O wait (rpc_wait_bit_killable).
+        # Weights-only checkpoints still support `resume=<file.pt>` (fresh optimizer).
+        self.save_optimizer_state = bool(getattr(cfg, "save_optimizer_state", True))
         self.eval_every = int(cfg.eval_every)
         self.eval_num_inference_steps = int(cfg.eval_num_inference_steps)
         self.eval_num_samples = max(int(getattr(cfg, "eval_num_samples", 1)), 1)
@@ -964,6 +969,11 @@ class Wan22Trainer:
         if self.accelerator.is_main_process:
             ckpt_path = self._save_weights_checkpoint(step_tag=step_tag)
         self.accelerator.wait_for_everyone()
+
+        if not self.save_optimizer_state:
+            if self.accelerator.is_main_process:
+                logger.info("save_optimizer_state=False: skipping ZeRO state for %s", step_tag)
+            return {"weights_path": ckpt_path, "state_path": None}
 
         state_path = os.path.join(self.state_dir, step_tag)
         ensure_dir(state_path)

@@ -14,6 +14,33 @@ imagewam_init() {
     source "${REPO_ROOT}/.env.local"
     set +a
   fi
+
+  imagewam_setup_runtime_libs
+}
+
+# Make the repo venv usable without the caller having activated it, and put the
+# CUDA 11 NPP libs on the loader path. torchcodec's CUDA build needs
+# libnppicc.so.11 (pip package nvidia-npp-cu11, not a torch dependency); without
+# it torchcodec fails to import and LeRobot silently falls back to a pyav
+# decoder that leaks GBs per batch and OOM-kills the dataloader workers.
+imagewam_setup_runtime_libs() {
+  if [ -x "${REPO_ROOT}/.venv/bin/python" ]; then
+    case ":${PATH}:" in
+      *":${REPO_ROOT}/.venv/bin:"*) ;;
+      *) export PATH="${REPO_ROOT}/.venv/bin:${PATH}" ;;
+    esac
+    export PYTHON_BIN="${PYTHON_BIN:-${REPO_ROOT}/.venv/bin/python}"
+  fi
+
+  local npp_lib
+  for npp_lib in "${REPO_ROOT}"/.venv/lib/python*/site-packages/nvidia/npp/lib; do
+    if [ -d "${npp_lib}" ]; then
+      case ":${LD_LIBRARY_PATH:-}:" in
+        *":${npp_lib}:"*) ;;
+        *) export LD_LIBRARY_PATH="${npp_lib}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" ;;
+      esac
+    fi
+  done
 }
 
 imagewam_require_env() {

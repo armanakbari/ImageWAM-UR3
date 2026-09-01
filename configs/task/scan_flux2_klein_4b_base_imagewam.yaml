@@ -1,0 +1,53 @@
+# @package _global_
+# Fine-tune FLUX.2-klein-4B ImageWAM on the EmbodyX/old_new_scan_lerobot real dataset.
+# Same dual-arm UR3 embodiment as ur3_flux2 (3 cams, 14-dim joint action/state),
+# single task "scan barcode". Adapted from ur3_flux2_klein_4b_base_imagewam.yaml;
+# only the data config, epoch budget, and run name differ.
+#
+# 96 episodes / ~45k frames is small, so epochs are raised relative to step count
+# and the LR is the real-world value (5e-5). First run: pretrained_norm_stats=null
+# in the data config -> a dataset_stats.json is written to the run dir.
+
+defaults:
+  - override /data: scan_flux2
+  - override /model: imagewam_flux2_klein_4b_base
+  - _self_
+
+data:
+  train:
+    require_text_cache: false
+    qwen_text_cache_dir: ???        # set by the run script (SCAN_DATA_ROOT/flux2_qwen3_cache_4b)
+    qwen_context_len: 512
+    qwen_text_cache_format: qwen3_flux2
+  val:
+    require_text_cache: false
+    qwen_text_cache_dir: ???
+    qwen_context_len: 512
+    qwen_text_cache_format: qwen3_flux2
+
+batch_size: 12
+num_workers: 24
+prefetch_factor: 2
+persistent_workers: true
+keep_latest_state_only: true
+
+lr_scheduler_type: "cosine"
+learning_rate: 5e-5
+num_epochs: 50
+max_steps: null
+log_every: 10
+save_every: 1000
+eval_every: 500
+
+gradient_accumulation_steps: 4
+weight_decay: 1e-2
+mixed_precision: "bf16"
+resume: null
+
+model:
+  proprio_dim: ${data.train.processor.proprio_output_dim}
+
+wandb:
+  enabled: true
+  project: imagewam
+  name: scan_flux2_klein_4b_base_imagewam

@@ -1,3 +1,60 @@
+> ## Fork: real-world UR3 fine-tuning
+>
+> This is a fork of **[yuyangalin/ImageWAM](https://github.com/yuyangalin/ImageWAM)** (MIT,
+> © 2026 Yuyang "Alice.L") — all upstream code, licence, and attribution are unchanged.
+> It adds configs, scripts, and documentation for fine-tuning ImageWAM on real-world
+> **bimanual dual-arm UR3** data from the InternData-A1 pretrain.
+>
+> **Start here: [`docs/FINETUNING_UR3.md`](docs/FINETUNING_UR3.md)** — full procedure, the
+> GPU-count/batch table, and the gotchas (torchcodec/AV1, NFS checkpoint stalls, why the
+> offline eval metrics cannot rank checkpoints).
+>
+> ### What this fork adds
+>
+> | | |
+> |---|---|
+> | `configs/data/ur3_*.yaml`, `configs/task/ur3_*.yaml` | five UR3 task/data configs (single- and multi-task, `ee16`) |
+> | `scripts/flux2/run_finetune_flux2_klein_ur3_ee16.sh` | launch wrapper, `TASK_NAME`-parameterised |
+> | `src/imagewam/trainer.py` | new `save_optimizer_state` flag (default `true`, unchanged behaviour) |
+> | `scripts/common.sh` | `imagewam_setup_runtime_libs` — venv on `PATH`, CUDA-11 NPP on `LD_LIBRARY_PATH` |
+> | `docs/` | fine-tuning procedure + per-run reports |
+>
+> ### Data (not in this repo)
+>
+> Datasets are **not** committed — `.gitignore` excludes `data/`. The three tasks used for the
+> multi-task fine-tune are published separately:
+>
+> **[`armanakbari4/ur3-3task-lerobot`](https://huggingface.co/datasets/armanakbari4/ur3-3task-lerobot)**
+> — LeRobot v2.1, 300 episodes / 99,677 frames / ~845 MB, collected by EmbodyX.
+>
+> | task | episodes | frames | instruction |
+> |---|---|---|---|
+> | `blue_basket_lerobot` | 100 | 29,653 | "put the medicine then the measuring tape inside the blue basket" |
+> | `drawer_lerobot` | 100 | 32,982 | "open the drawer, put the white box inside the drawer then close the drawer" |
+> | `stacking_cubes_lerobot` | 100 | 37,042 | "put the green cube on top of the black cube and put the red cube on top of the green cube" |
+>
+> Three RGB cameras at **240×320** (`camera_top`, `camera_wrist_left`, `camera_wrist_right`);
+> 14-dim absolute joint action/state `[L_arm(6) | L_grip | R_arm(6) | R_grip]`; 15 fps.
+> Two further tasks used in earlier runs (`mug`, `ethernet_2.0`) come from the private
+> `EmbodyX/UR3` dataset and are not public.
+>
+> ```bash
+> hf download armanakbari4/ur3-3task-lerobot --repo-type dataset --local-dir data/ur3
+> ```
+>
+> Nothing outside this repository is required — see `docs/FINETUNING_UR3.md` §0.
+>
+> ### Fine-tuned checkpoints
+>
+> | repo | tasks | steps |
+> |---|---|---|
+> | [`armanakbari4/imagewam-ur3-3task`](https://huggingface.co/armanakbari4/imagewam-ur3-3task) | blue_basket + drawer + stacking_cubes | 10,000 |
+> | [`armanakbari4/imagewam-ur3-ethernet`](https://huggingface.co/armanakbari4/imagewam-ur3-ethernet) | ethernet insertion | 7,000 |
+>
+> All initialise from [`yuyangalin/ImageWAM-FLUX.2-4B-InternData-A1-EE`](https://huggingface.co/yuyangalin/ImageWAM-FLUX.2-4B-InternData-A1-EE).
+
+---
+
 <div align="center">
   <h1>ImageWAM</h1>
   <h3>Do World Action Models Really Need Video Generation,<br>or Just Image Editing?</h3>

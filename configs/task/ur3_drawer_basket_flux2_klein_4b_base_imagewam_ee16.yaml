@@ -1,0 +1,56 @@
+# @package _global_
+
+# Real-world UR3, drawer + blue_basket trained JOINTLY, fine-tuned in the 16D space
+# expected by the released InternData-A1 pretrain weight
+# (yuyangalin/ImageWAM-FLUX.2-4B-InternData-A1-EE).
+#
+# Same recipe as the ethernet run: upstream's fine-tune-from-pretrain hyperparameters
+# with the run capped by `max_steps: 7000` (~21 epochs at 62,635 frames / global batch 192)
+# rather than 50 epochs. save_every=1000 gives 7 checkpoints to select from on the robot.
+#
+# `resume` is left null here; the launch script
+# (scripts/flux2/run_finetune_flux2_klein_ur3_ee16.sh) sets it to PRETRAIN_CHECKPOINT,
+# which loads weights only (fresh optimizer/step).
+
+defaults:
+  - override /data: ur3_drawer_basket_ee16
+  - override /model: imagewam_flux2_klein_4b_base
+  - _self_
+
+data:
+  train:
+    qwen_text_cache_format: qwen3_flux2
+  val:
+    qwen_text_cache_format: ${data.train.qwen_text_cache_format}
+
+batch_size: 12
+# Per rank, not global. Upstream's 24 assumes an 8-GPU box with more RAM headroom.
+num_workers: 8
+prefetch_factor: 2
+persistent_workers: true
+keep_latest_state_only: true
+
+lr_scheduler_type: "cosine"
+learning_rate: 2.5e-5
+num_epochs: 50
+max_steps: 7000
+log_every: 10
+save_every: 1000
+eval_every: 500
+# Per rank. The default of 1 makes infer_psnr/ssim/action_l1 noise, because
+# trainer.evaluate() reseeds off global_step and draws a different clip set every eval.
+eval_num_samples: 8
+
+gradient_accumulation_steps: 4
+weight_decay: 1e-2
+mixed_precision: "bf16"
+resume: null
+
+model:
+  proprio_dim: ${data.train.processor.proprio_output_dim}
+  qwen_context_len: ${data.train.qwen_context_len}
+
+wandb:
+  enabled: true
+  project: imagewam
+  name: ur3_drawer_basket_flux2_klein_4b_base_imagewam_ee16
